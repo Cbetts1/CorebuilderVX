@@ -1,0 +1,282 @@
+[
+  {
+    "id": "compile_project",
+    "group": "build",
+    "label": "Compile Project",
+    "icon": "🛠️",
+    "handler": "tools.build.compile_project",
+    "supports_simulation": true
+  },
+  {
+    "id": "generate_makefile",
+    "group": "build",
+    "label": "Generate Makefile",
+    "icon": "🛠️",
+    "handler": "tools.build.generate_makefile",
+    "supports_simulation": true
+  },
+  {
+    "id": "run_code",
+    "group": "code",
+    "label": "Run Code",
+    "icon": "💻",
+    "handler": "tools.code.run_code",
+    "supports_simulation": true
+  },
+  {
+    "id": "lint_code",
+    "group": "code",
+    "label": "Lint Code",
+    "icon": "💻",
+    "handler": "tools.code.lint_code",
+    "supports_simulation": false
+  },
+  {
+    "id": "format_code",
+    "group": "code",
+    "label": "Format Code",
+    "icon": "💻",
+    "handler": "tools.code.format_code",
+    "supports_simulation": false
+  },
+  {
+    "id": "start_web_server",
+    "group": "web",
+    "label": "Start Web Server",
+    "icon": "🌐",
+    "handler": "tools.web.start_web_server",
+    "supports_simulation": true
+  },
+  {
+    "id": "build_static_site",
+    "group": "web",
+    "label": "Build Static Site",
+    "icon": "🌐",
+    "handler": "tools.web.build_static_site",
+    "supports_simulation": true
+  },
+  {
+    "id": "install_package",
+    "group": "program",
+    "label": "Install Package",
+    "icon": "📦",
+    "handler": "tools.program.install_package",
+    "supports_simulation": true
+  },
+  {
+    "id": "list_packages",
+    "group": "program",
+    "label": "List Packages",
+    "icon": "📦",
+    "handler": "tools.program.list_packages",
+    "supports_simulation": false
+  },
+  {
+    "id": "run_ai_model",
+    "group": "ai",
+    "label": "Run AI Model",
+    "icon": "⚙️",
+    "handler": "tools.ai.run_ai_model",
+    "supports_simulation": true
+  },
+  {
+    "id": "list_ai_models",
+    "group": "ai",
+    "label": "List AI Models",
+    "icon": "⚙️",
+    "handler": "tools.ai.list_ai_models",
+    "supports_simulation": false
+  },
+  {
+    "id": "start_vm",
+    "group": "vm",
+    "label": "Start VM",
+    "icon": "🖥️",
+    "handler": "tools.vm.start_vm",
+    "supports_simulation": true
+  },
+  {
+    "id": "stop_vm",
+    "group": "vm",
+    "label": "Stop VM",
+    "icon": "🖥️",
+    "handler": "tools.vm.stop_vm",
+    "supports_simulation": true
+  },
+  {
+    "id": "run_simulation",
+    "group": "simulation",
+    "label": "Run Simulation",
+    "icon": "🎛️",
+    "handler": "tools.simulation.run_simulation",
+    "supports_simulation": true
+  },
+  {
+    "id": "list_simulations",
+    "group": "simulation",
+    "label": "List Simulations",
+    "icon": "🎛️",
+    "handler": "tools.simulation.list_simulations",
+    "supports_simulation": false
+  },
+  {
+    "id": "create_vdrive",
+    "group": "virtual_storage",
+    "label": "Create Virtual Drive",
+    "icon": "💾",
+    "handler": "tools.virtual_storage.create_vdrive",
+    "supports_simulation": true
+  },
+  {
+    "id": "list_vdrives",
+    "group": "virtual_storage",
+    "label": "List Virtual Drives",
+    "icon": "💾",
+    "handler": "tools.virtual_storage.list_vdrives",
+    "supports_simulation": false
+  },
+  {
+    "id": "cloud_deploy",
+    "group": "cloud",
+    "label": "Deploy to Cloud",
+    "icon": "☁️",
+    "handler": "tools.cloud.cloud_deploy",
+    "supports_simulation": true
+  },
+  {
+    "id": "cloud_status",
+    "group": "cloud",
+    "label": "Cloud Status",
+    "icon": "☁️",
+    "handler": "tools.cloud.cloud_status",
+    "supports_simulation": false
+  },
+  {
+    "id": "start_api_server",
+    "group": "backend",
+    "label": "Start API Server",
+    "icon": "🔌",
+    "handler": "tools.backend.start_api_server",
+    "supports_simulation": true
+  },
+  {
+    "id": "test_endpoint",
+    "group": "backend",
+    "label": "Test Endpoint",
+    "icon": "🔌",
+    "handler": "tools.backend.test_endpoint",
+    "supports_simulation": false
+  },
+  {
+    "id": "list_files",
+    "group": "storage",
+    "label": "List Files",
+    "icon": "📂",
+    "handler": "tools.storage.list_files",
+    "supports_simulation": false
+  },
+  {
+    "id": "backup_files",
+    "group": "storage",
+    "label": "Backup Files",
+    "icon": "📂",
+    "handler": "tools.storage.backup_files",
+    "supports_simulation": true
+  },
+  {
+    "id": "run_diagnostics",
+    "group": "diagnostics",
+    "label": "Run Diagnostics",
+    "icon": "🩺",
+    "handler": "tools.diagnostics.run_diagnostics",
+    "supports_simulation": false
+  },
+  {
+    "id": "check_health",
+    "group": "diagnostics",
+    "label": "Check System Health",
+    "icon": "🩺",
+    "handler": "tools.diagnostics.check_health",
+    "supports_simulation": false
+  },
+  {
+    "id": "ping_host",
+    "group": "network",
+    "label": "Ping Host",
+    "icon": "📡",
+    "handler": "tools.network.ping_host",
+    "supports_simulation": true
+  },
+  {
+    "id": "scan_ports",
+    "group": "network",
+    "label": "Scan Ports",
+    "icon": "📡",
+    "handler": "tools.network.scan_ports",
+    "supports_simulation": true
+  },
+  {
+    "id": "detect_hardware",
+    "group": "hardware",
+    "label": "Detect Hardware",
+    "icon": "🔧",
+    "handler": "tools.hardware.detect_hardware",
+    "supports_simulation": false
+  },
+  {
+    "id": "benchmark_cpu",
+    "group": "hardware",
+    "label": "Benchmark CPU",
+    "icon": "🔧",
+    "handler": "tools.hardware.benchmark_cpu",
+    "supports_simulation": true
+  },
+  {
+    "id": "list_templates",
+    "group": "templates",
+    "label": "List Templates",
+    "icon": "📁",
+    "handler": "tools.templates.list_templates",
+    "supports_simulation": false
+  },
+  {
+    "id": "apply_template",
+    "group": "templates",
+    "label": "Apply Template",
+    "icon": "📁",
+    "handler": "tools.templates.apply_template",
+    "supports_simulation": true
+  },
+  {
+    "id": "start_lesson",
+    "group": "learning",
+    "label": "Start Lesson",
+    "icon": "📘",
+    "handler": "tools.learning.start_lesson",
+    "supports_simulation": false
+  },
+  {
+    "id": "list_lessons",
+    "group": "learning",
+    "label": "List Lessons",
+    "icon": "📘",
+    "handler": "tools.learning.list_lessons",
+    "supports_simulation": false
+  },
+  {
+    "id": "open_shell",
+    "group": "shell",
+    "label": "Open Shell",
+    "icon": ">_",
+    "handler": "tools.shell.open_shell",
+    "supports_simulation": true
+  },
+  {
+    "id": "run_shell_command",
+    "group": "shell",
+    "label": "Run Shell Command",
+    "icon": ">_",
+    "handler": "tools.shell.run_shell_command",
+    "supports_simulation": true
+  }
+]
