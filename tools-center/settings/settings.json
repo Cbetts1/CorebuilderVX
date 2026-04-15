@@ -1,0 +1,12 @@
+{
+  "theme": "default",
+  "simulation_mode": false,
+  "colour_enabled": true,
+  "debug_mode": false,
+  "default_shell": "/bin/sh",
+  "log_level": "INFO",
+  "cloud_provider": "local",
+  "vdrive_default_size_mb": 512,
+  "ai_model": "llama",
+  "editor": "nano"
+}
