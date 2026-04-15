@@ -1,0 +1,14 @@
+{
+  "name": "cbx-api",
+  "version": "1.0.0",
+  "description": "CoreBuilderVX Node.js API backend",
+  "main": "api.js",
+  "scripts": {
+    "start": "node api.js"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "keywords": ["corebuilder", "cbx", "termux"],
+  "license": "MIT"
+}

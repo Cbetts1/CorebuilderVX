@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>CoreBuilderVX — Operator Cockpit</title>
+  <link rel="stylesheet" href="cockpit.css">
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="cbx-header">
+  <div class="cbx-logo">
+    <span class="cbx-logo-icon">⚙</span>
+    <span class="cbx-logo-text">CoreBuilderVX</span>
+  </div>
+  <div class="cbx-header-right">
+    <span id="hw-tier" class="cbx-badge">–</span>
+    <span id="hw-ram"  class="cbx-badge">–</span>
+    <span id="api-status" class="cbx-badge cbx-badge-red">API ✗</span>
+    <span id="clock" class="cbx-clock">--:--:--</span>
+  </div>
+</header>
+
+<!-- ===== MAIN LAYOUT ===== -->
+<main class="cbx-main">
+
+  <!-- Left nav -->
+  <nav class="cbx-nav">
+    <ul>
+      <li class="active" data-panel="dashboard"><span>◈</span> Dashboard</li>
+      <li data-panel="builder">   <span>🔨</span> OS Builder</li>
+      <li data-panel="tester">    <span>🔬</span> OS Tester</li>
+      <li data-panel="bootsim">   <span>▶</span> Boot Sim</li>
+      <li data-panel="vcloud">    <span>☁</span> Vcloud</li>
+      <li data-panel="vm">        <span>□</span> Lite VM</li>
+      <li data-panel="ai">        <span>✦</span> AI Runner</li>
+      <li data-panel="hardware">  <span>📟</span> Hardware</li>
+      <li data-panel="logs">      <span>📋</span> Logs</li>
+      <li data-panel="settings">  <span>⚙</span> Settings</li>
+    </ul>
+  </nav>
+
+  <!-- Content area -->
+  <section class="cbx-content">
+
+    <!-- Dashboard -->
+    <div id="panel-dashboard" class="cbx-panel active">
+      <h2>Operator Dashboard</h2>
+      <div class="cbx-grid">
+        <div class="cbx-card" onclick="showPanel('builder')">
+          <div class="cbx-card-icon">🔨</div>
+          <div class="cbx-card-title">OS Builder</div>
+          <div class="cbx-card-desc">Construct OS layers & blueprints</div>
+        </div>
+        <div class="cbx-card" onclick="showPanel('tester')">
+          <div class="cbx-card-icon">🔬</div>
+          <div class="cbx-card-title">OS Tester</div>
+          <div class="cbx-card-desc">Integrity, service & boot tests</div>
+        </div>
+        <div class="cbx-card" onclick="showPanel('bootsim')">
+          <div class="cbx-card-icon">▶</div>
+          <div class="cbx-card-title">Boot Simulator</div>
+          <div class="cbx-card-desc">Simulate OS boot sequence</div>
+        </div>
+        <div class="cbx-card" onclick="showPanel('vcloud')">
+          <div class="cbx-card-icon">☁</div>
+          <div class="cbx-card-title">Vcloud Builder</div>
+          <div class="cbx-card-desc">Virtual cloud environments</div>
+        </div>
+        <div class="cbx-card" onclick="showPanel('vm')">
+          <div class="cbx-card-icon">□</div>
+          <div class="cbx-card-title">Lite VM</div>
+          <div class="cbx-card-desc">Lightweight VM simulation</div>
+        </div>
+        <div class="cbx-card" onclick="showPanel('ai')">
+          <div class="cbx-card-icon">✦</div>
+          <div class="cbx-card-title">AI Runner</div>
+          <div class="cbx-card-desc">Local small model runner</div>
+        </div>
+      </div>
+
+      <!-- Recent builds -->
+      <h3>Recent Builds</h3>
+      <div id="recent-builds" class="cbx-table-wrap">
+        <table class="cbx-table">
+          <thead><tr><th>Name</th><th>Type</th><th>Arch</th><th>Built</th><th>Status</th></tr></thead>
+          <tbody id="builds-tbody"><tr><td colspan="5" class="cbx-loading">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- OS Builder -->
+    <div id="panel-builder" class="cbx-panel">
+      <h2>OS Builder</h2>
+      <form id="builder-form" class="cbx-form">
+        <label>Build Name
+          <input type="text" id="build-name" placeholder="cbx-build-20240101" />
+        </label>
+        <label>Build Type
+          <select id="build-type">
+            <option value="minimal">Minimal (~10MB)</option>
+            <option value="standard">Standard (~50MB)</option>
+            <option value="full">Full (~200MB)</option>
+          </select>
+        </label>
+        <label>Architecture
+          <select id="build-arch">
+            <option value="auto">Auto-detect</option>
+            <option value="aarch64">aarch64 (ARM 64)</option>
+            <option value="x86_64">x86_64 (Intel/AMD)</option>
+            <option value="armv7">armv7 (ARM 32)</option>
+          </select>
+        </label>
+        <label>Modules <span class="cbx-hint">(space-separated)</span>
+          <input type="text" id="build-modules" value="base networking filesystem" />
+        </label>
+        <button type="submit" class="cbx-btn cbx-btn-primary">▶ Start Build</button>
+      </form>
+      <div id="builder-output" class="cbx-terminal" style="display:none"></div>
+    </div>
+
+    <!-- OS Tester -->
+    <div id="panel-tester" class="cbx-panel">
+      <h2>OS Tester</h2>
+      <p>Select a test to run against the latest build.</p>
+      <div class="cbx-btn-row">
+        <button class="cbx-btn" onclick="runCommand('test')">🔬 Integrity</button>
+        <button class="cbx-btn" onclick="runCommand('test')">🔧 Services</button>
+        <button class="cbx-btn" onclick="runCommand('test')">🥾 Boot Test</button>
+      </div>
+      <div id="tester-output" class="cbx-terminal"></div>
+    </div>
+
+    <!-- Boot Sim -->
+    <div id="panel-bootsim" class="cbx-panel">
+      <h2>Boot Simulator</h2>
+      <p>Simulate the OS boot sequence of the latest build.</p>
+      <button class="cbx-btn cbx-btn-primary" onclick="runCommand('sim', 'bootsim-output')">▶ Run Boot Sim</button>
+      <div id="bootsim-output" class="cbx-terminal"></div>
+    </div>
+
+    <!-- Vcloud -->
+    <div id="panel-vcloud" class="cbx-panel">
+      <h2>Vcloud Builder</h2>
+      <p>Launch the Vcloud builder (shell — see terminal for interactive session).</p>
+      <button class="cbx-btn cbx-btn-primary" onclick="runCommand('vcloud', 'vcloud-output')">☁ Build Vcloud</button>
+      <div id="vcloud-output" class="cbx-terminal"></div>
+    </div>
+
+    <!-- VM -->
+    <div id="panel-vm" class="cbx-panel">
+      <h2>Lightweight VM</h2>
+      <p>Spin up a local VM simulation. For full interactive VM, use the shell.</p>
+      <button class="cbx-btn cbx-btn-primary" onclick="runCommand('vm', 'vm-output')">□ Launch VM</button>
+      <div id="vm-output" class="cbx-terminal"></div>
+    </div>
+
+    <!-- AI -->
+    <div id="panel-ai" class="cbx-panel">
+      <h2>Local AI Runner</h2>
+      <p>Run small AI models locally. For interactive chat, use <code>./core.sh ai</code> in the shell.</p>
+      <div id="ai-status" class="cbx-terminal">Checking AI backends...</div>
+      <div class="cbx-form" id="ai-chat-form" style="display:none">
+        <div id="ai-chat-log" class="cbx-terminal" style="height:300px"></div>
+        <div class="cbx-chat-row">
+          <input type="text" id="ai-input" placeholder="Ask something..." />
+          <button class="cbx-btn cbx-btn-primary" onclick="sendAiMessage()">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hardware -->
+    <div id="panel-hardware" class="cbx-panel">
+      <h2>Hardware Profile</h2>
+      <button class="cbx-btn" onclick="loadHardware()">↻ Refresh</button>
+      <div id="hw-table-wrap" class="cbx-table-wrap">
+        <table class="cbx-table" id="hw-table">
+          <thead><tr><th>Key</th><th>Value</th></tr></thead>
+          <tbody id="hw-tbody"><tr><td colspan="2" class="cbx-loading">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Logs -->
+    <div id="panel-logs" class="cbx-panel">
+      <h2>Build Logs</h2>
+      <button class="cbx-btn" onclick="loadLogs()">↻ Refresh</button>
+      <div id="log-output" class="cbx-terminal" style="height:400px">Loading...</div>
+    </div>
+
+    <!-- Settings -->
+    <div id="panel-settings" class="cbx-panel">
+      <h2>Settings</h2>
+      <div class="cbx-form">
+        <label>API Host
+          <input type="text" id="s-api-host" value="127.0.0.1" />
+        </label>
+        <label>API Port
+          <input type="number" id="s-api-port" value="8765" />
+        </label>
+        <button class="cbx-btn cbx-btn-primary" onclick="saveSettings()">Save & Reconnect</button>
+      </div>
+      <hr>
+      <h3>About</h3>
+      <p class="cbx-muted">CoreBuilderVX v1.0.0 — Adaptive local-first build engine<br>
+      Designed for Samsung Galaxy S21 FE (Termux) and any POSIX shell environment.</p>
+    </div>
+
+  </section>
+</main>
+
+<!-- ===== TOAST ===== -->
+<div id="cbx-toast" class="cbx-toast"></div>
+
+<script src="cockpit.js"></script>
+</body>
+</html>
