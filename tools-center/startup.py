@@ -130,6 +130,7 @@ def _step5_preload_menus():
         "menus.learning_menu",
         "menus.shell_menu",
         "menus.settings_menu",
+        "menus.online_studio_menu",
     ]
     for name in menu_names:
         try:

@@ -20,6 +20,7 @@ def show():
         ("🛠️",  "Build Tools",        _go_build),
         ("💻",  "Code Tools",         _go_code),
         ("🌐",  "Web Tools",          _go_web),
+        ("🖥️",  "Website Builder & Online Studio", _go_online_studio),
         ("📦",  "Program Tools",      _go_program),
         ("⚙️",  "AI Tools",           _go_ai),
         ("🖥️",  "VM Tools",           _go_vm),
@@ -86,6 +87,10 @@ def _go_code():
 def _go_web():
     from menus import web_menu
     web_menu.show()
+
+def _go_online_studio():
+    from menus import online_studio_menu
+    online_studio_menu.show()
 
 def _go_program():
     from menus import program_menu
