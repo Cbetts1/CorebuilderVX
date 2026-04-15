@@ -278,5 +278,29 @@
     "icon": ">_",
     "handler": "tools.shell.run_shell_command",
     "supports_simulation": true
+  },
+  {
+    "id": "online_studio_website_builder",
+    "group": "online_studio",
+    "label": "Website Builder",
+    "icon": "🌐",
+    "handler": "tools.online_studio.website_builder",
+    "supports_simulation": true
+  },
+  {
+    "id": "online_studio_program_editor",
+    "group": "online_studio",
+    "label": "Program Editor",
+    "icon": "📝",
+    "handler": "tools.online_studio.program_editor",
+    "supports_simulation": true
+  },
+  {
+    "id": "online_studio_web_calling_texting",
+    "group": "online_studio",
+    "label": "Web Calling & Texting",
+    "icon": "📞",
+    "handler": "tools.online_studio.web_calling_texting",
+    "supports_simulation": true
   }
 ]
