@@ -19,7 +19,7 @@ import sys
 import json
 import shutil
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone
 
 CBX_ROOT = os.environ.get(
     "CBX_ROOT",
@@ -68,7 +68,7 @@ def _add_to_index(name, template, path):
         "name":       name,
         "template":   template,
         "path":       path,
-        "created_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "created_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "status":     "active",
     })
     _save_index(projects)
@@ -115,7 +115,7 @@ def create_project(name=None, template=None):
     manifest = {
         "name":       safe_name,
         "template":   template,
-        "created_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "created_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "status":     "active",
     }
     with open(os.path.join(dst, "manifest.json"), "w", encoding="utf-8") as f:

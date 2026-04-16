@@ -57,7 +57,7 @@ main_menu() {
                 cbx_pause
                 ;;
             9) source "$CBX_ROOT/modules/backend/api_manager.sh"    ;;
-            s) python3 "$CBX_ROOT/modules/site_builder/website_builder.py" ;;
+            s|S) python3 "$CBX_ROOT/modules/site_builder/website_builder.py" ;;
             u) source "$CBX_ROOT/modules/updater/self_upgrade.sh"   ;;
             w) source "$CBX_ROOT/menus/wizards/setup_wizard.sh"     ;;
             q|quit|exit)

@@ -39,6 +39,19 @@ def load_config():
     return conf
 
 
+# ---- Helpers -----------------------------------------------------------------
+
+import re as _re
+
+def _sanitise_identifier(value: str) -> str:
+    """Strip any character that is not alphanumeric, hyphen, or underscore.
+
+    Used to prevent command-line injection when passing user-supplied names
+    as positional arguments to website_builder.py.
+    """
+    return _re.sub(r"[^A-Za-z0-9_\-]", "", str(value))[:64]
+
+
 # ---- Routes -----------------------------------------------------------------
 
 @app.route("/api/v1/status", methods=["GET"])
@@ -179,14 +192,14 @@ def run_command():
         sub_cmd = {"site_create": "create", "site_open": "open", "site_preview": "preview"}[cmd]
         extra_args = []
         if cmd == "site_create":
-            name     = data.get("name", "")
-            template = data.get("template", "")
+            name     = _sanitise_identifier(data.get("name", ""))
+            template = _sanitise_identifier(data.get("template", ""))
             if name:
                 extra_args.append(name)
             if template:
                 extra_args.append(template)
         elif cmd in ("site_open", "site_preview"):
-            name = data.get("name", "")
+            name = _sanitise_identifier(data.get("name", ""))
             if name:
                 extra_args.append(name)
         try:

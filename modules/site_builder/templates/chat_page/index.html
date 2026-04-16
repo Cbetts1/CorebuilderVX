@@ -62,7 +62,12 @@
       if (!text) return;
       const msg = document.createElement('div');
       msg.className = 'msg outgoing';
-      msg.innerHTML = `${text}<div class="meta">You • just now</div>`;
+      const textNode = document.createTextNode(text);
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.textContent = 'You • just now';
+      msg.appendChild(textNode);
+      msg.appendChild(meta);
       window_.appendChild(msg);
       window_.scrollTop = window_.scrollHeight;
       input.value = '';
@@ -70,7 +75,12 @@
       setTimeout(() => {
         const reply = document.createElement('div');
         reply.className = 'msg incoming';
-        reply.innerHTML = `[Auto-reply] You said: "${text}"<div class="meta">Bot • just now</div>`;
+        const replyText = document.createTextNode(`[Auto-reply] You said: "${text}"`);
+        const replyMeta = document.createElement('div');
+        replyMeta.className = 'meta';
+        replyMeta.textContent = 'Bot • just now';
+        reply.appendChild(replyText);
+        reply.appendChild(replyMeta);
         window_.appendChild(reply);
         window_.scrollTop = window_.scrollHeight;
       }, 600);

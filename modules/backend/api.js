@@ -15,6 +15,14 @@ const API_HOST  = process.env.CBX_API_HOST  || "127.0.0.1";
 const API_PORT  = parseInt(process.env.CBX_API_PORT || "8765", 10);
 const LOG_FILE  = path.join(CBX_ROOT, "builds", "build.log");
 
+// ---- Input sanitisation -----------------------------------------------------
+/** Strip any character that is not alphanumeric, hyphen, or underscore.
+ *  Used to prevent command-line injection for user-supplied project/template names.
+ */
+function _sanitiseIdentifier(value) {
+    return String(value).replace(/[^A-Za-z0-9_\-]/g, "").slice(0, 64);
+}
+
 // ---- Simple router ----------------------------------------------------------
 const routes = Object.create(null);
 function route(method, path, handler) {
@@ -151,10 +159,10 @@ route("POST", "/api/v1/run", (req, res, body) => {
         const subCmd = { site_create: "create", site_open: "open", site_preview: "preview" }[cmd];
         const extraArgs = [];
         if (cmd === "site_create") {
-            if (data.name)     extraArgs.push(data.name);
-            if (data.template) extraArgs.push(data.template);
+            if (data.name)     extraArgs.push(_sanitiseIdentifier(String(data.name)));
+            if (data.template) extraArgs.push(_sanitiseIdentifier(String(data.template)));
         } else if (data.name) {
-            extraArgs.push(data.name);
+            extraArgs.push(_sanitiseIdentifier(String(data.name)));
         }
         const env = { ...process.env, CBX_ROOT, CBX_NO_COLOR: "1" };
         execFile("python3", [siteBuilder, subCmd, ...extraArgs],
