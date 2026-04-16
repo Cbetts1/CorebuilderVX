@@ -280,27 +280,35 @@
     "supports_simulation": true
   },
   {
-    "id": "online_studio_website_builder",
-    "group": "online_studio",
-    "label": "Website Builder",
+    "id": "site_create_project",
+    "group": "site_builder",
+    "label": "Create Project",
     "icon": "🌐",
-    "handler": "tools.online_studio.website_builder",
+    "handler": "tools.site_builder.create_project",
     "supports_simulation": true
   },
   {
-    "id": "online_studio_program_editor",
-    "group": "online_studio",
-    "label": "Program Editor",
-    "icon": "📝",
-    "handler": "tools.online_studio.program_editor",
+    "id": "site_open_project",
+    "group": "site_builder",
+    "label": "Open Project",
+    "icon": "🌐",
+    "handler": "tools.site_builder.open_project",
     "supports_simulation": true
   },
   {
-    "id": "online_studio_web_calling_texting",
-    "group": "online_studio",
-    "label": "Web Calling & Texting",
-    "icon": "📞",
-    "handler": "tools.online_studio.web_calling_texting",
+    "id": "site_preview_server",
+    "group": "site_builder",
+    "label": "Preview Server",
+    "icon": "🌐",
+    "handler": "tools.site_builder.preview_server",
     "supports_simulation": true
+  },
+  {
+    "id": "site_template_loader",
+    "group": "site_builder",
+    "label": "Template Loader",
+    "icon": "🌐",
+    "handler": "tools.site_builder.template_loader",
+    "supports_simulation": false
   }
 ]

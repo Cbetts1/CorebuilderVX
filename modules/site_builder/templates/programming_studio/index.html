@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Programming Studio</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Consolas', 'Courier New', monospace; background: #1e1e1e; color: #d4d4d4;
+           display: flex; flex-direction: column; height: 100vh; }
+    header { background: #2d2d2d; padding: 0.6rem 1.2rem; display: flex; align-items: center;
+             gap: 1rem; border-bottom: 1px solid #3c3c3c; }
+    header .logo { color: #569cd6; font-weight: 700; font-size: 1rem; }
+    header .tabs { display: flex; gap: 0; }
+    header .tab { padding: 0.4rem 1rem; background: #1e1e1e; border-top: 2px solid #569cd6;
+                  font-size: 0.85rem; cursor: pointer; }
+    header .tab.inactive { border-top-color: transparent; background: #2d2d2d; color: #888; }
+    .workspace { display: flex; flex: 1; overflow: hidden; }
+    .sidebar { width: 200px; background: #252526; border-right: 1px solid #3c3c3c;
+               padding: 0.75rem 0; flex-shrink: 0; }
+    .sidebar h3 { font-size: 0.72rem; color: #bbb; text-transform: uppercase; padding: 0 1rem 0.5rem; }
+    .sidebar ul { list-style: none; }
+    .sidebar li { padding: 0.3rem 1rem; font-size: 0.85rem; cursor: pointer; }
+    .sidebar li:hover { background: #2a2d2e; }
+    .sidebar li.active { background: #094771; color: #fff; }
+    .editor { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .editor-area { flex: 1; padding: 1rem; overflow: auto; }
+    .editor-area pre { color: #d4d4d4; font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; }
+    .kw  { color: #569cd6; }
+    .fn  { color: #dcdcaa; }
+    .str { color: #ce9178; }
+    .cm  { color: #6a9955; }
+    .num { color: #b5cea8; }
+    .terminal { height: 160px; background: #0c0c0c; border-top: 1px solid #3c3c3c;
+                padding: 0.75rem; overflow-y: auto; font-size: 0.85rem; }
+    .terminal .prompt { color: #569cd6; }
+    .terminal .output { color: #4ec9b0; }
+    statusbar { display: block; background: #007acc; color: #fff; padding: 0.2rem 0.75rem;
+                font-size: 0.78rem; display: flex; gap: 1.5rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">⚡ Programming Studio</div>
+    <div class="tabs">
+      <div class="tab">main.py</div>
+      <div class="tab inactive">utils.py</div>
+      <div class="tab inactive">README.md</div>
+    </div>
+  </header>
+  <div class="workspace">
+    <nav class="sidebar">
+      <h3>Explorer</h3>
+      <ul>
+        <li class="active">📄 main.py</li>
+        <li>📄 utils.py</li>
+        <li>📄 README.md</li>
+        <li>📁 tests/</li>
+        <li>📁 docs/</li>
+      </ul>
+    </nav>
+    <div class="editor">
+      <div class="editor-area">
+        <pre>
+<span class="cm"># Programming Studio — main.py</span>
+<span class="cm"># Replace this with your own code</span>
+
+<span class="kw">import</span> os
+<span class="kw">import</span> sys
+
+
+<span class="kw">def</span> <span class="fn">greet</span>(name: str) -&gt; str:
+    <span class="str">"""Return a greeting string."""</span>
+    <span class="kw">return</span> <span class="str">f"Hello, {name}! Welcome to Programming Studio."</span>
+
+
+<span class="kw">def</span> <span class="fn">main</span>():
+    name = os.environ.get(<span class="str">"USER"</span>, <span class="str">"Developer"</span>)
+    <span class="fn">print</span>(greet(name))
+
+
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    <span class="fn">main</span>()
+        </pre>
+      </div>
+      <div class="terminal">
+        <div><span class="prompt">$ </span>python3 main.py</div>
+        <div class="output">Hello, Developer! Welcome to Programming Studio.</div>
+        <div><span class="prompt">$ </span><span id="cursor">▌</span></div>
+      </div>
+    </div>
+  </div>
+  <statusbar>
+    <span>Python 3</span>
+    <span>UTF-8</span>
+    <span>Ln 1, Col 1</span>
+    <span>CoreBuilderVX Studio</span>
+  </statusbar>
+  <script>
+    // Blinking cursor
+    const cursor = document.getElementById('cursor');
+    setInterval(() => { cursor.style.opacity = cursor.style.opacity === '0' ? '1' : '0'; }, 500);
+  </script>
+</body>
+</html>

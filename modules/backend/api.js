@@ -15,6 +15,14 @@ const API_HOST  = process.env.CBX_API_HOST  || "127.0.0.1";
 const API_PORT  = parseInt(process.env.CBX_API_PORT || "8765", 10);
 const LOG_FILE  = path.join(CBX_ROOT, "builds", "build.log");
 
+// ---- Input sanitisation -----------------------------------------------------
+/** Strip any character that is not alphanumeric, hyphen, or underscore.
+ *  Used to prevent command-line injection for user-supplied project/template names.
+ */
+function _sanitiseIdentifier(value) {
+    return String(value).replace(/[^A-Za-z0-9_\-]/g, "").slice(0, 64);
+}
+
 // ---- Simple router ----------------------------------------------------------
 const routes = Object.create(null);
 function route(method, path, handler) {
@@ -98,6 +106,30 @@ route("GET", "/api/v1/modules", (req, res) => {
     json(res, 200, { modules });
 });
 
+route("GET", "/api/v1/sites", (req, res) => {
+    const indexPath = path.join(CBX_ROOT, "builds", "websites", "index.json");
+    let projects = [];
+    if (fs.existsSync(indexPath)) {
+        try { projects = JSON.parse(fs.readFileSync(indexPath, "utf8")); } catch (_) {}
+    }
+    json(res, 200, { sites: projects, count: projects.length });
+});
+
+route("GET", "/api/v1/sites/templates", (req, res) => {
+    const templatesDir = path.join(CBX_ROOT, "modules", "site_builder", "templates");
+    const templates = [];
+    if (fs.existsSync(templatesDir)) {
+        for (const name of fs.readdirSync(templatesDir).sort()) {
+            const tPath = path.join(templatesDir, name);
+            if (fs.statSync(tPath).isDirectory()) {
+                const files = fs.readdirSync(tPath);
+                templates.push({ name, files });
+            }
+        }
+    }
+    json(res, 200, { templates });
+});
+
 route("GET", "/api/v1/logs", (req, res) => {
     let lines = [];
     if (fs.existsSync(LOG_FILE)) {
@@ -108,13 +140,45 @@ route("GET", "/api/v1/logs", (req, res) => {
 });
 
 route("POST", "/api/v1/run", (req, res, body) => {
-    const allowed = new Set(["hardware", "build", "test", "sim", "vcloud", "vm", "update"]);
+    const allowed = new Set(["hardware", "build", "test", "sim", "vcloud", "vm", "update",
+                             "site_create", "site_open", "site_preview"]);
     let data = {};
     try { data = JSON.parse(body); } catch (_) {}
     const cmd = data.command || "";
 
     if (!allowed.has(cmd)) {
         return json(res, 400, { error: `Command not allowed: ${cmd}` });
+    }
+
+    // Site builder commands run website_builder.py
+    if (cmd === "site_create" || cmd === "site_open" || cmd === "site_preview") {
+        const siteBuilder = path.join(CBX_ROOT, "modules", "site_builder", "website_builder.py");
+        if (!fs.existsSync(siteBuilder)) {
+            return json(res, 404, { error: "website_builder.py not found" });
+        }
+        const subCmd = { site_create: "create", site_open: "open", site_preview: "preview" }[cmd];
+        // Pass user-supplied values via environment variables, not command-line args,
+        // to avoid any command-line injection risk.
+        const extraEnv = {};
+        if (cmd === "site_create") {
+            if (data.name)     extraEnv["CBX_SITE_NAME"]     = _sanitiseIdentifier(String(data.name));
+            if (data.template) extraEnv["CBX_SITE_TEMPLATE"] = _sanitiseIdentifier(String(data.template));
+        } else if (data.name) {
+            extraEnv["CBX_SITE_NAME"] = _sanitiseIdentifier(String(data.name));
+        }
+        const env = { ...process.env, CBX_ROOT, CBX_NO_COLOR: "1", ...extraEnv };
+        execFile("python3", [siteBuilder, subCmd],
+            { env, timeout: 30000 },
+            (err, stdout, stderr) => {
+                json(res, 200, {
+                    command:    cmd,
+                    returncode: err ? (err.code || 1) : 0,
+                    stdout:     stdout.slice(-4096),
+                    stderr:     stderr.slice(-1024),
+                });
+            }
+        );
+        return;
     }
 
     const scriptMap = {

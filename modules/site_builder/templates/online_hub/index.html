@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Hub</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #0d1117; color: #e6edf3; }
+    header { background: #161b22; border-bottom: 1px solid #30363d; padding: 1rem 2rem;
+             display: flex; align-items: center; justify-content: space-between; }
+    header .logo { font-size: 1.3rem; font-weight: 700; color: #58a6ff; }
+    header nav a { color: #8b949e; text-decoration: none; margin-left: 1.5rem; font-size: 0.9rem; }
+    header nav a:hover { color: #e6edf3; }
+    .hero { text-align: center; padding: 4rem 1.5rem; }
+    .hero h1 { font-size: 2.4rem; margin-bottom: 1rem; }
+    .hero p  { font-size: 1.1rem; color: #8b949e; max-width: 600px; margin: 0 auto 2rem; }
+    .btn { display: inline-block; background: #238636; color: #fff; padding: 0.65rem 1.5rem;
+           border-radius: 6px; text-decoration: none; font-size: 0.95rem; }
+    .btn:hover { background: #2ea043; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem; max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+    .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.25rem; }
+    .card h3 { color: #58a6ff; margin-bottom: 0.5rem; }
+    .card p  { font-size: 0.9rem; color: #8b949e; line-height: 1.5; }
+    footer { text-align: center; padding: 1.5rem; color: #484f58; font-size: 0.85rem;
+             border-top: 1px solid #21262d; margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">⬡ Online Hub</div>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#community">Community</a>
+      <a href="#docs">Docs</a>
+    </nav>
+  </header>
+  <section class="hero">
+    <h1>Your Online Hub</h1>
+    <p>A central place for your community, resources, links, and tools. Modern, dark, and developer-friendly.</p>
+    <a href="#features" class="btn">Explore Features</a>
+  </section>
+  <div class="grid" id="features">
+    <div class="card">
+      <h3>📚 Resources</h3>
+      <p>Curate links, docs, and files for your audience in one organised place.</p>
+    </div>
+    <div class="card">
+      <h3>💬 Community</h3>
+      <p>Connect members via forums, chat widgets, or embedded Discord/Slack.</p>
+    </div>
+    <div class="card">
+      <h3>🔧 Tools</h3>
+      <p>Embed utilities, APIs, and widgets your community needs every day.</p>
+    </div>
+    <div class="card">
+      <h3>📡 Updates</h3>
+      <p>Post announcements and keep everyone in the loop automatically.</p>
+    </div>
+  </div>
+  <footer>
+    <p>&copy; 2026 Online Hub — Built with CoreBuilderVX</p>
+  </footer>
+</body>
+</html>

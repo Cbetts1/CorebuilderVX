@@ -37,6 +37,7 @@
       <li data-panel="ai">        <span>✦</span> AI Runner</li>
       <li data-panel="hardware">  <span>📟</span> Hardware</li>
       <li data-panel="logs">      <span>📋</span> Logs</li>
+      <li data-panel="studio">   <span>🌐</span> Online Studio</li>
       <li data-panel="settings">  <span>⚙</span> Settings</li>
     </ul>
   </nav>
@@ -187,6 +188,63 @@
       <h2>Build Logs</h2>
       <button class="cbx-btn" onclick="loadLogs()">↻ Refresh</button>
       <div id="log-output" class="cbx-terminal" style="height:400px">Loading...</div>
+    </div>
+
+    <!-- Online Studio -->
+    <div id="panel-studio" class="cbx-panel">
+      <h2>Website Builder &amp; Online Studio</h2>
+      <p>Create, manage, and preview website projects built with CoreBuilderVX templates.</p>
+
+      <!-- Actions -->
+      <div class="cbx-btn-row" style="margin:1rem 0;">
+        <button class="cbx-btn cbx-btn-primary" onclick="studioCreateProject()">＋ New Project</button>
+        <button class="cbx-btn" onclick="loadStudioProjects()">↻ Refresh</button>
+        <button class="cbx-btn" onclick="studioLoadTemplates()">📁 Templates</button>
+      </div>
+
+      <!-- Create form (hidden by default) -->
+      <div id="studio-create-form" class="cbx-form" style="display:none; margin-bottom:1rem;">
+        <label>Project Name
+          <input type="text" id="studio-proj-name" placeholder="my-website" />
+        </label>
+        <label>Template
+          <select id="studio-proj-template">
+            <option value="classic">Classic</option>
+            <option value="online_hub">Online Hub</option>
+            <option value="chat_page">Chat Page</option>
+            <option value="call_hub">Call Hub</option>
+            <option value="programming_studio">Programming Studio</option>
+            <option value="lessons">Lessons</option>
+          </select>
+        </label>
+        <div class="cbx-btn-row">
+          <button class="cbx-btn cbx-btn-primary" onclick="studioSubmitCreate()">▶ Create</button>
+          <button class="cbx-btn" onclick="document.getElementById('studio-create-form').style.display='none'">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Templates list -->
+      <div id="studio-templates-wrap" style="display:none; margin-bottom:1rem;">
+        <h3>Available Templates</h3>
+        <div id="studio-templates-list" class="cbx-table-wrap">
+          <table class="cbx-table">
+            <thead><tr><th>#</th><th>Template</th><th>Files</th></tr></thead>
+            <tbody id="studio-templates-tbody"><tr><td colspan="3" class="cbx-loading">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Projects table -->
+      <h3>My Projects</h3>
+      <div id="studio-projects-wrap" class="cbx-table-wrap">
+        <table class="cbx-table">
+          <thead><tr><th>Name</th><th>Template</th><th>Created</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="studio-projects-tbody"><tr><td colspan="5" class="cbx-loading">Loading...</td></tr></tbody>
+        </table>
+      </div>
+
+      <!-- Output log -->
+      <div id="studio-output" class="cbx-terminal" style="display:none; margin-top:1rem;"></div>
     </div>
 
     <!-- Settings -->

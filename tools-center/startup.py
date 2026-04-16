@@ -115,6 +115,7 @@ def _step5_preload_menus():
         "menus.build_menu",
         "menus.code_menu",
         "menus.web_menu",
+        "menus.site_builder_menu",
         "menus.program_menu",
         "menus.ai_menu",
         "menus.vm_menu",

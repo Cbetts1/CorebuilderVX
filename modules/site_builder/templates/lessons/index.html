@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lessons</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f4f6f8; color: #333; }
+    header { background: #4a55a2; color: #fff; padding: 1.5rem 2rem; }
+    header h1 { font-size: 1.6rem; }
+    header p  { font-size: 0.9rem; opacity: 0.85; margin-top: 0.25rem; }
+    .layout { display: flex; max-width: 1000px; margin: 2rem auto; gap: 1.5rem; padding: 0 1.25rem; }
+    .sidebar { width: 220px; flex-shrink: 0; }
+    .sidebar h3 { font-size: 0.8rem; text-transform: uppercase; color: #888; margin-bottom: 0.75rem; }
+    .lesson-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .lesson-list li { background: #fff; border-radius: 6px; padding: 0.6rem 0.9rem;
+                      cursor: pointer; font-size: 0.9rem; border-left: 3px solid transparent; }
+    .lesson-list li:hover  { border-left-color: #4a55a2; }
+    .lesson-list li.active { border-left-color: #4a55a2; background: #eef0fa; font-weight: 600; }
+    .lesson-list .done { color: #27ae60; margin-right: 5px; }
+    .content { flex: 1; background: #fff; border-radius: 8px; padding: 1.75rem; }
+    .content h2 { font-size: 1.3rem; color: #4a55a2; margin-bottom: 0.75rem; }
+    .content p  { line-height: 1.7; margin-bottom: 1rem; }
+    .content pre { background: #f0f3f8; padding: 1rem; border-radius: 6px; font-size: 0.85rem;
+                   overflow-x: auto; margin-bottom: 1rem; }
+    .progress-bar { height: 6px; background: #dce0f0; border-radius: 3px; margin: 1.25rem 0; }
+    .progress-bar .fill { height: 100%; background: #4a55a2; border-radius: 3px; width: 33%; }
+    .nav-btns { display: flex; gap: 0.75rem; margin-top: 1rem; }
+    .btn { padding: 0.55rem 1.2rem; border-radius: 6px; border: none; cursor: pointer; font-size: 0.9rem; }
+    .btn-prev { background: #e0e4f0; color: #4a55a2; }
+    .btn-next { background: #4a55a2; color: #fff; }
+    .btn:hover { opacity: 0.88; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📘 Lessons</h1>
+    <p>Interactive learning — track your progress lesson by lesson.</p>
+  </header>
+  <div class="layout">
+    <aside class="sidebar">
+      <h3>Course</h3>
+      <ul class="lesson-list" id="lesson-list">
+        <li class="active" data-lesson="0"><span class="done">✓</span>Introduction</li>
+        <li data-lesson="1">Lesson 1: Basics</li>
+        <li data-lesson="2">Lesson 2: Core Concepts</li>
+        <li data-lesson="3">Lesson 3: Practice</li>
+        <li data-lesson="4">Final Project</li>
+      </ul>
+    </aside>
+    <main class="content" id="content-area">
+      <h2>Introduction</h2>
+      <div class="progress-bar"><div class="fill" id="fill"></div></div>
+      <p>Welcome to this lesson template. Each entry in the sidebar loads a lesson. Progress is tracked as you advance through the course.</p>
+      <p>Replace the lesson content with your own material — text, code samples, images, quizzes, and videos all work here.</p>
+      <pre># Example code block
+def hello():
+    print("Start learning!")</pre>
+      <div class="nav-btns">
+        <button class="btn btn-prev" onclick="navigate(-1)">← Previous</button>
+        <button class="btn btn-next" onclick="navigate(1)">Next →</button>
+      </div>
+    </main>
+  </div>
+  <script>
+    const lessons = [
+      { title: "Introduction", body: "Welcome to this lesson template. Each entry in the sidebar loads a lesson.", code: "# Start\nprint('Hello, learner!')" },
+      { title: "Lesson 1: Basics",       body: "Cover the fundamental concepts here. Use bullet points, code, and images.",  code: "x = 1\nprint(x + 1)" },
+      { title: "Lesson 2: Core Concepts",body: "Dive deeper into the core ideas. Link to external resources as needed.",    code: "for i in range(5):\n    print(i)" },
+      { title: "Lesson 3: Practice",     body: "Put the concepts into practice with hands-on exercises.",                    code: "# Your solution here\npass" },
+      { title: "Final Project",          body: "Complete the final project and submit your work for review.",                code: "# Final project\nprint('Done!')" },
+    ];
+    let current = 0;
+
+    function render() {
+      const l = lessons[current];
+      document.getElementById('content-area').innerHTML = `
+        <h2>${l.title}</h2>
+        <div class="progress-bar"><div class="fill" style="width:${Math.round((current+1)/lessons.length*100)}%"></div></div>
+        <p>${l.body}</p>
+        <pre>${l.code}</pre>
+        <div class="nav-btns">
+          <button class="btn btn-prev" onclick="navigate(-1)">← Previous</button>
+          <button class="btn btn-next" onclick="navigate(1)">Next →</button>
+        </div>`;
+      document.querySelectorAll('#lesson-list li').forEach((li, i) => {
+        li.classList.toggle('active', i === current);
+      });
+    }
+
+    function navigate(dir) {
+      current = Math.max(0, Math.min(lessons.length - 1, current + dir));
+      render();
+    }
+
+    document.querySelectorAll('#lesson-list li').forEach((li, i) => {
+      li.addEventListener('click', () => { current = i; render(); });
+    });
+  </script>
+</body>
+</html>

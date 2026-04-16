@@ -17,10 +17,10 @@ def show():
     navigation.push("Main Menu")
 
     ENTRIES = [
-        ("🛠️",  "Build Tools",        _go_build),
-        ("💻",  "Code Tools",         _go_code),
-        ("🌐",  "Web Tools",          _go_web),
-        ("🖥️",  "Website Builder & Online Studio", _go_online_studio),
+        ("🛠️",  "Build Tools",                      _go_build),
+        ("💻",  "Code Tools",                       _go_code),
+        ("🌐",  "Web Tools",                        _go_web),
+        ("🖥️",  "Website Builder & Online Studio",  _go_site_builder),
         ("📦",  "Program Tools",      _go_program),
         ("⚙️",  "AI Tools",           _go_ai),
         ("🖥️",  "VM Tools",           _go_vm),
@@ -88,9 +88,9 @@ def _go_web():
     from menus import web_menu
     web_menu.show()
 
-def _go_online_studio():
-    from menus import online_studio_menu
-    online_studio_menu.show()
+def _go_site_builder():
+    from menus import site_builder_menu
+    site_builder_menu.show()
 
 def _go_program():
     from menus import program_menu
