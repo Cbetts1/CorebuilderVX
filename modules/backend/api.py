@@ -190,23 +190,25 @@ def run_command():
         if not os.path.exists(site_builder):
             return jsonify({"error": "website_builder.py not found"}), 404
         sub_cmd = {"site_create": "create", "site_open": "open", "site_preview": "preview"}[cmd]
-        extra_args = []
+        # Pass user-supplied values via environment variables, not command-line args,
+        # to avoid any command-line injection risk.
+        extra_env = {}
         if cmd == "site_create":
             name     = _sanitise_identifier(data.get("name", ""))
             template = _sanitise_identifier(data.get("template", ""))
             if name:
-                extra_args.append(name)
+                extra_env["CBX_SITE_NAME"] = name
             if template:
-                extra_args.append(template)
+                extra_env["CBX_SITE_TEMPLATE"] = template
         elif cmd in ("site_open", "site_preview"):
             name = _sanitise_identifier(data.get("name", ""))
             if name:
-                extra_args.append(name)
+                extra_env["CBX_SITE_NAME"] = name
         try:
             result = subprocess.run(
-                [sys.executable, site_builder, sub_cmd] + extra_args,
+                [sys.executable, site_builder, sub_cmd],
                 capture_output=True, text=True, timeout=30,
-                env={**os.environ, "CBX_ROOT": CBX_ROOT, "CBX_NO_COLOR": "1"}
+                env={**os.environ, "CBX_ROOT": CBX_ROOT, "CBX_NO_COLOR": "1", **extra_env}
             )
             return jsonify({
                 "command":    cmd,

@@ -157,15 +157,17 @@ route("POST", "/api/v1/run", (req, res, body) => {
             return json(res, 404, { error: "website_builder.py not found" });
         }
         const subCmd = { site_create: "create", site_open: "open", site_preview: "preview" }[cmd];
-        const extraArgs = [];
+        // Pass user-supplied values via environment variables, not command-line args,
+        // to avoid any command-line injection risk.
+        const extraEnv = {};
         if (cmd === "site_create") {
-            if (data.name)     extraArgs.push(_sanitiseIdentifier(String(data.name)));
-            if (data.template) extraArgs.push(_sanitiseIdentifier(String(data.template)));
+            if (data.name)     extraEnv["CBX_SITE_NAME"]     = _sanitiseIdentifier(String(data.name));
+            if (data.template) extraEnv["CBX_SITE_TEMPLATE"] = _sanitiseIdentifier(String(data.template));
         } else if (data.name) {
-            extraArgs.push(_sanitiseIdentifier(String(data.name)));
+            extraEnv["CBX_SITE_NAME"] = _sanitiseIdentifier(String(data.name));
         }
-        const env = { ...process.env, CBX_ROOT, CBX_NO_COLOR: "1" };
-        execFile("python3", [siteBuilder, subCmd, ...extraArgs],
+        const env = { ...process.env, CBX_ROOT, CBX_NO_COLOR: "1", ...extraEnv };
+        execFile("python3", [siteBuilder, subCmd],
             { env, timeout: 30000 },
             (err, stdout, stderr) => {
                 json(res, 200, {

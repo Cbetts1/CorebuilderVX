@@ -255,14 +255,18 @@ if __name__ == "__main__":
     if not args:
         interactive_menu()
     elif args[0] == "create":
-        create_project(name=args[1] if len(args) > 1 else None,
-                       template=args[2] if len(args) > 2 else None)
+        # Name and template may be passed as positional args or via env vars (API path)
+        name_arg     = args[1] if len(args) > 1 else os.environ.get("CBX_SITE_NAME", "")
+        template_arg = args[2] if len(args) > 2 else os.environ.get("CBX_SITE_TEMPLATE", "")
+        create_project(name=name_arg or None, template=template_arg or None)
     elif args[0] == "open":
-        open_project(name=args[1] if len(args) > 1 else None)
+        name_arg = args[1] if len(args) > 1 else os.environ.get("CBX_SITE_NAME", "")
+        open_project(name=name_arg or None)
     elif args[0] == "list":
         list_projects()
     elif args[0] == "preview":
-        start_preview(name=args[1] if len(args) > 1 else None,
+        name_arg = args[1] if len(args) > 1 else os.environ.get("CBX_SITE_NAME", "")
+        start_preview(name=name_arg or None,
                       port=int(args[2]) if len(args) > 2 else None)
     else:
         print(f"  Unknown command: {args[0]}")
