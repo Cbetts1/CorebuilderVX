@@ -23,6 +23,7 @@ _render_menu() {
     echo -e "  ${C_CYAN}7${C_NC}  Operator Cockpit    — Launch frontend UI"
     echo -e "  ${C_CYAN}8${C_NC}  Hardware Profile    — View/refresh hardware info"
     echo -e "  ${C_CYAN}9${C_NC}  Backend API         — Start/stop API engine"
+    echo -e "  ${C_CYAN}S${C_NC}  Website Builder     — Build & preview websites"
     echo -e "  ${C_CYAN}U${C_NC}  Self-Upgrade        — Update CoreBuilderVX"
     echo -e "  ${C_CYAN}W${C_NC}  Setup Wizard        — First-time configuration"
     echo -e "  ${C_CYAN}Q${C_NC}  Quit"
@@ -56,6 +57,7 @@ main_menu() {
                 cbx_pause
                 ;;
             9) source "$CBX_ROOT/modules/backend/api_manager.sh"    ;;
+            s) source "$CBX_ROOT/modules/site_builder/website_builder.sh" ;;
             u) source "$CBX_ROOT/modules/updater/self_upgrade.sh"   ;;
             w) source "$CBX_ROOT/menus/wizards/setup_wizard.sh"     ;;
             q|quit|exit)

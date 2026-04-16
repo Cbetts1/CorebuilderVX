@@ -143,6 +143,94 @@ route("POST", "/api/v1/run", (req, res, body) => {
     });
 });
 
+// ---- Site Builder helpers ---------------------------------------------------
+function sitesDir() {
+    return path.join(CBX_ROOT, "data", "sites");
+}
+
+function readManifest(name) {
+    const p = path.join(sitesDir(), name, "manifest.json");
+    if (!fs.existsSync(p)) return null;
+    try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch (_) { return null; }
+}
+
+function writeManifest(name, manifest) {
+    const p = path.join(sitesDir(), name, "manifest.json");
+    fs.writeFileSync(p, JSON.stringify(manifest, null, 2));
+}
+
+function safeName(name) {
+    return (name || "").replace(/[^a-zA-Z0-9_\-]/g, "");
+}
+
+// ---- Site Builder routes ----------------------------------------------------
+route("GET", "/api/v1/sites", (req, res) => {
+    const dir   = sitesDir();
+    const sites = [];
+    if (fs.existsSync(dir)) {
+        for (const entry of fs.readdirSync(dir).sort().reverse()) {
+            const m = readManifest(entry);
+            if (m) sites.push(m);
+        }
+        sites.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
+    }
+    json(res, 200, { sites, count: sites.length });
+});
+
+route("POST", "/api/v1/sites", (req, res, body) => {
+    let data = {};
+    try { data = JSON.parse(body); } catch (_) {}
+    const name = safeName(data.name || "");
+    if (!name) return json(res, 400, { error: "name is required" });
+
+    const projectDir = path.join(sitesDir(), name);
+    if (fs.existsSync(projectDir)) {
+        return json(res, 409, { error: `Site '${name}' already exists.` });
+    }
+
+    const templates = ["blank", "landing", "portfolio", "blog"];
+    const template  = templates.includes(data.template) ? data.template : "landing";
+    const modes     = ["template", "code"];
+    const mode      = modes.includes(data.mode) ? data.mode : "template";
+    const title     = data.title || name.replace(/[-_]/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+    const desc      = data.description || `${title} — built with CoreBuilderVX Website Builder.`;
+
+    try {
+        fs.mkdirSync(path.join(projectDir, "pages"),  { recursive: true });
+        fs.mkdirSync(path.join(projectDir, "assets"), { recursive: true });
+        fs.mkdirSync(path.join(projectDir, "_build"), { recursive: true });
+    } catch (e) {
+        return json(res, 500, { error: "Could not create project directories" });
+    }
+
+    const now      = new Date().toISOString();
+    const manifest = { name, template, mode, title, description: desc,
+                       created_at: now, updated_at: now, last_build: null,
+                       pages: ["index"] };
+    writeManifest(name, manifest);
+
+    // Write a minimal starter page
+    const starterHtml = `<!DOCTYPE html>\n<html lang="en">\n<head>\n` +
+        `  <meta charset="UTF-8">\n  <title>${title}</title>\n</head>\n<body>\n` +
+        `  <h1>${title}</h1>\n  <p>${desc}</p>\n` +
+        `  <footer>Built with CoreBuilderVX</footer>\n</body>\n</html>\n`;
+    fs.writeFileSync(path.join(projectDir, "pages", "index.html"), starterHtml);
+
+    json(res, 201, manifest);
+});
+
+route("GET", "/api/v1/sites/:name", (req, res) => {
+    // handled via the dynamic router below
+});
+
+route("POST", "/api/v1/sites/:name/build", (req, res) => {
+    // handled via the dynamic router below
+});
+
+route("DELETE", "/api/v1/sites/:name", (req, res) => {
+    // handled via the dynamic router below
+});
+
 // ---- Serve cockpit UI -------------------------------------------------------
 route("GET", "/", (req, res) => {
     const cockpitPath = path.join(CBX_ROOT, "modules", "frontend", "cockpit.html");
@@ -156,6 +244,64 @@ route("GET", "/", (req, res) => {
 });
 
 // ---- HTTP server ------------------------------------------------------------
+// ---- HTTP server ------------------------------------------------------------
+// Dynamic route handlers for parameterised paths
+function _handleDynamic(method, url, req, res, body) {
+    // GET /api/v1/sites/<name>
+    let m = url.match(/^\/api\/v1\/sites\/([^/]+)$/);
+    if (m && method === "GET") {
+        const name     = safeName(m[1]);
+        const manifest = readManifest(name);
+        if (!manifest) return json(res, 404, { error: `Site '${name}' not found` });
+        return json(res, 200, manifest);
+    }
+    // POST /api/v1/sites/<name>/build
+    m = url.match(/^\/api\/v1\/sites\/([^/]+)\/build$/);
+    if (m && method === "POST") {
+        const name    = safeName(m[1]);
+        const pDir    = path.join(sitesDir(), name);
+        if (!fs.existsSync(pDir)) return json(res, 404, { error: `Site '${name}' not found` });
+        const buildDir  = path.join(pDir, "_build");
+        const pagesDir  = path.join(pDir, "pages");
+        const assetsDir = path.join(pDir, "assets");
+        if (fs.existsSync(buildDir))
+            fs.rmSync(buildDir, { recursive: true });
+        fs.mkdirSync(buildDir, { recursive: true });
+        if (fs.existsSync(pagesDir)) {
+            for (const f of fs.readdirSync(pagesDir)) {
+                if (f.endsWith(".html"))
+                    fs.copyFileSync(path.join(pagesDir, f), path.join(buildDir, f));
+            }
+        }
+        if (fs.existsSync(assetsDir) && fs.readdirSync(assetsDir).length) {
+            const copyDir = (src, dst) => {
+                fs.mkdirSync(dst, { recursive: true });
+                for (const e of fs.readdirSync(src)) {
+                    const s = path.join(src, e), d = path.join(dst, e);
+                    fs.statSync(s).isDirectory() ? copyDir(s, d) : fs.copyFileSync(s, d);
+                }
+            };
+            copyDir(assetsDir, path.join(buildDir, "assets"));
+        }
+        const now      = new Date().toISOString();
+        const manifest = readManifest(name) || {};
+        manifest.updated_at = now;
+        manifest.last_build = now;
+        writeManifest(name, manifest);
+        return json(res, 200, { status: "ok", build_dir: buildDir, manifest });
+    }
+    // DELETE /api/v1/sites/<name>
+    m = url.match(/^\/api\/v1\/sites\/([^/]+)$/);
+    if (m && method === "DELETE") {
+        const name = safeName(m[1]);
+        const pDir = path.join(sitesDir(), name);
+        if (!fs.existsSync(pDir)) return json(res, 404, { error: `Site '${name}' not found` });
+        fs.rmSync(pDir, { recursive: true });
+        return json(res, 200, { status: "ok", deleted: name });
+    }
+    return false;
+}
+
 const server = http.createServer((req, res) => {
     if (req.method === "OPTIONS") {
         res.writeHead(204, {
@@ -175,7 +321,7 @@ const server = http.createServer((req, res) => {
         const handler = routes[key];
         if (typeof handler === "function") {
             handler(req, res, body);
-        } else {
+        } else if (!_handleDynamic(req.method, req.url.split("?")[0], req, res, body)) {
             json(res, 404, { error: `Not found: ${req.url}` });
         }
     });

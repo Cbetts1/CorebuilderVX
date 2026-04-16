@@ -37,6 +37,7 @@
       <li data-panel="ai">        <span>✦</span> AI Runner</li>
       <li data-panel="hardware">  <span>📟</span> Hardware</li>
       <li data-panel="logs">      <span>📋</span> Logs</li>
+      <li data-panel="sitebuilder"><span>🏗️</span> Website Builder</li>
       <li data-panel="settings">  <span>⚙</span> Settings</li>
     </ul>
   </nav>
@@ -187,6 +188,73 @@
       <h2>Build Logs</h2>
       <button class="cbx-btn" onclick="loadLogs()">↻ Refresh</button>
       <div id="log-output" class="cbx-terminal" style="height:400px">Loading...</div>
+    </div>
+
+    <!-- Website Builder -->
+    <div id="panel-sitebuilder" class="cbx-panel">
+      <h2>Website Builder &amp; Online Studio</h2>
+
+      <!-- Mode tabs -->
+      <div class="cbx-btn-row" style="margin-bottom:1.25rem">
+        <button class="cbx-btn cbx-btn-primary" id="wb-tab-new"
+                onclick="wbShowTab('new')">✨ New Site</button>
+        <button class="cbx-btn" id="wb-tab-list"
+                onclick="wbShowTab('list')">📋 My Sites</button>
+      </div>
+
+      <!-- New Site form -->
+      <div id="wb-pane-new">
+        <h3>Create a New Site</h3>
+        <form id="wb-create-form" class="cbx-form" style="margin-top:0.75rem">
+          <label>Site Name <span class="cbx-hint">(slug: letters, numbers, hyphens)</span>
+            <input type="text" id="wb-name" placeholder="my-portfolio" required />
+          </label>
+          <label>Template
+            <select id="wb-template">
+              <option value="landing">Landing Page</option>
+              <option value="portfolio">Portfolio</option>
+              <option value="blog">Blog</option>
+              <option value="blank">Blank</option>
+            </select>
+          </label>
+          <label>Site Title
+            <input type="text" id="wb-title" placeholder="My Awesome Site" />
+          </label>
+          <label>Description
+            <input type="text" id="wb-desc" placeholder="A short description of your site" />
+          </label>
+          <label>Mode
+            <select id="wb-mode">
+              <option value="template">Template (starter HTML generated)</option>
+              <option value="code">Code (edit raw HTML directly)</option>
+            </select>
+          </label>
+          <button type="submit" class="cbx-btn cbx-btn-primary">✨ Create Site</button>
+        </form>
+        <div id="wb-create-output" class="cbx-terminal" style="display:none"></div>
+      </div>
+
+      <!-- My Sites list -->
+      <div id="wb-pane-list" style="display:none">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem">
+          <h3 style="margin:0">My Sites</h3>
+          <button class="cbx-btn" onclick="loadSites()">↻ Refresh</button>
+        </div>
+        <div class="cbx-table-wrap">
+          <table class="cbx-table">
+            <thead>
+              <tr>
+                <th>Name</th><th>Template</th><th>Mode</th>
+                <th>Created</th><th>Last Build</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="wb-sites-tbody">
+              <tr><td colspan="6" class="cbx-loading">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="wb-action-output" class="cbx-terminal" style="display:none;margin-top:0.75rem"></div>
+      </div>
     </div>
 
     <!-- Settings -->

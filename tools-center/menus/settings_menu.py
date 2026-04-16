@@ -52,21 +52,17 @@ def _make_handler(tool: dict):
 
 
 def _import_and_call(handler_path: str, fn_name: str):
+    """Import handler_path as a module and call fn_name() on it."""
     import importlib
-    parts = handler_path.rsplit(".", 1)
-    if len(parts) != 2:
-        print(f"  Invalid handler: {handler_path}")
-        return
-    module_path, _ = parts
     try:
-        mod = importlib.import_module(module_path)
+        mod = importlib.import_module(handler_path)
         fn  = getattr(mod, fn_name, None)
         if fn:
             fn()
         else:
-            print(f"  {fn_name}() not found in {module_path}")
+            print(f"  {fn_name}() not found in {handler_path}")
     except ImportError as exc:
-        print(f"  Could not import {module_path}: {exc}")
+        print(f"  Could not import {handler_path}: {exc}")
 
 
 def _fallback_items():

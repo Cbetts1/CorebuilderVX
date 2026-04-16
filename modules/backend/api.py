@@ -24,6 +24,10 @@ CORS(app)
 CBX_ROOT = os.environ.get("CBX_ROOT", os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))
 
+# Ensure modules/ under CBX_ROOT is importable (needed for site_builder)
+if CBX_ROOT not in sys.path:
+    sys.path.insert(0, CBX_ROOT)
+
 
 def load_config():
     """Load hardware profile if available."""
@@ -158,6 +162,92 @@ def run_command():
         })
     except subprocess.TimeoutExpired:
         return jsonify({"error": "Command timed out"}), 504
+    except Exception:
+        return jsonify({"error": "Internal server error"}), 500
+
+
+
+# ---- Site Builder -----------------------------------------------------------
+
+def _get_site_builder():
+    """Return a WebsiteBuilder instance, importing from modules/site_builder."""
+    from modules.site_builder.website_builder import WebsiteBuilder
+    return WebsiteBuilder(os.path.join(CBX_ROOT, "data"))
+
+
+@app.route("/api/v1/sites", methods=["GET"])
+def list_sites():
+    """List all site projects."""
+    try:
+        builder  = _get_site_builder()
+        projects = builder.list_projects()
+        return jsonify({"sites": projects, "count": len(projects)})
+    except Exception:
+        return jsonify({"sites": [], "count": 0})
+
+
+@app.route("/api/v1/sites", methods=["POST"])
+def create_site():
+    """Create a new site project."""
+    data = request.get_json(force=True, silent=True) or {}
+    name     = data.get("name", "")
+    template = data.get("template", "landing")
+    title    = data.get("title", "")
+    desc     = data.get("description", "")
+    mode     = data.get("mode", "template")
+
+    if not name:
+        return jsonify({"error": "name is required"}), 400
+
+    try:
+        builder  = _get_site_builder()
+        manifest = builder.create_project(
+            name, template=template, title=title, description=desc, mode=mode
+        )
+        return jsonify(manifest), 201
+    except FileExistsError as exc:
+        return jsonify({"error": str(exc)}), 409
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+    except Exception as exc:
+        return jsonify({"error": "Internal server error"}), 500
+
+
+@app.route("/api/v1/sites/<site_name>", methods=["GET"])
+def get_site(site_name):
+    """Get a single site project manifest."""
+    try:
+        builder = _get_site_builder()
+        return jsonify(builder.get_project(site_name))
+    except FileNotFoundError:
+        return jsonify({"error": f"Site '{site_name}' not found"}), 404
+    except Exception:
+        return jsonify({"error": "Internal server error"}), 500
+
+
+@app.route("/api/v1/sites/<site_name>/build", methods=["POST"])
+def build_site(site_name):
+    """Build a site project to static HTML."""
+    try:
+        builder   = _get_site_builder()
+        build_dir = builder.build_project(site_name)
+        manifest  = builder.get_project(site_name)
+        return jsonify({"status": "ok", "build_dir": build_dir, "manifest": manifest})
+    except FileNotFoundError:
+        return jsonify({"error": f"Site '{site_name}' not found"}), 404
+    except Exception:
+        return jsonify({"error": "Internal server error"}), 500
+
+
+@app.route("/api/v1/sites/<site_name>", methods=["DELETE"])
+def delete_site(site_name):
+    """Delete a site project."""
+    try:
+        builder = _get_site_builder()
+        builder.delete_project(site_name)
+        return jsonify({"status": "ok", "deleted": site_name})
+    except FileNotFoundError:
+        return jsonify({"error": f"Site '{site_name}' not found"}), 404
     except Exception:
         return jsonify({"error": "Internal server error"}), 500
 

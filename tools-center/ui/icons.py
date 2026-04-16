@@ -9,6 +9,7 @@ ICONS = {
     "build":           "🛠️",
     "code":            "💻",
     "web":             "🌐",
+    "site_builder":    "🏗️",
     "program":         "📦",
     "ai":              "⚙️",
     "vm":              "🖥️",

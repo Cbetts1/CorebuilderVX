@@ -56,6 +56,38 @@
     "supports_simulation": true
   },
   {
+    "id": "create_site",
+    "group": "site_builder",
+    "label": "Create New Site",
+    "icon": "🏗️",
+    "handler": "tools.site_builder.create_site",
+    "supports_simulation": true
+  },
+  {
+    "id": "list_sites",
+    "group": "site_builder",
+    "label": "List Sites",
+    "icon": "🏗️",
+    "handler": "tools.site_builder.list_sites",
+    "supports_simulation": false
+  },
+  {
+    "id": "build_site",
+    "group": "site_builder",
+    "label": "Build Site",
+    "icon": "🏗️",
+    "handler": "tools.site_builder.build_site",
+    "supports_simulation": true
+  },
+  {
+    "id": "preview_site",
+    "group": "site_builder",
+    "label": "Preview Site",
+    "icon": "🏗️",
+    "handler": "tools.site_builder.preview_site",
+    "supports_simulation": true
+  },
+  {
     "id": "install_package",
     "group": "program",
     "label": "Install Package",

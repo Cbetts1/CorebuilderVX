@@ -36,6 +36,7 @@ function showPanel(name) {
   if (name === "logs")     loadLogs();
   if (name === "ai")       checkAiBackend();
   if (name === "dashboard") loadBuilds();
+  if (name === "sitebuilder") { wbShowTab("list"); }
 }
 
 document.querySelectorAll(".cbx-nav li").forEach(li => {
@@ -214,6 +215,136 @@ function saveSettings() {
   toast("Settings saved — reconnecting...");
   checkApiStatus();
 }
+
+// ---- Website Builder --------------------------------------------------------
+
+/** Switch between "New Site" and "My Sites" tabs. */
+function wbShowTab(tab) {
+  document.getElementById("wb-pane-new").style.display  = tab === "new"  ? "" : "none";
+  document.getElementById("wb-pane-list").style.display = tab === "list" ? "" : "none";
+  document.getElementById("wb-tab-new").className  =
+    "cbx-btn" + (tab === "new"  ? " cbx-btn-primary" : "");
+  document.getElementById("wb-tab-list").className =
+    "cbx-btn" + (tab === "list" ? " cbx-btn-primary" : "");
+  if (tab === "list") loadSites();
+}
+
+/** Load and render the sites table. */
+async function loadSites() {
+  const tbody = document.getElementById("wb-sites-tbody");
+  if (!tbody) return;
+  tbody.innerHTML = `<tr><td colspan="6" class="cbx-loading">Loading…</td></tr>`;
+  const data = await apiFetch("/api/v1/sites");
+  if (data.error || !data.sites) {
+    tbody.innerHTML = `<tr><td colspan="6" class="cbx-loading">${data.error || "No data"}</td></tr>`;
+    return;
+  }
+  if (!data.sites.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="cbx-loading">
+      No sites yet — use the "New Site" tab to create one.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.sites.map(s => {
+    const created = s.created_at ? s.created_at.slice(0, 10) : "–";
+    const built   = s.last_build ? s.last_build.slice(0, 16) : "never";
+    return `<tr>
+      <td><strong>${_esc(s.name)}</strong></td>
+      <td>${_esc(s.template || "–")}</td>
+      <td>${_esc(s.mode || "–")}</td>
+      <td>${created}</td>
+      <td style="color:${s.last_build ? 'var(--green)' : 'var(--muted)'}">${built}</td>
+      <td>
+        <button class="cbx-btn" style="font-size:0.75rem;padding:2px 8px"
+                onclick="wbBuildSite('${_esc(s.name)}')">⚙ Build</button>
+        <button class="cbx-btn" style="font-size:0.75rem;padding:2px 8px;margin-left:4px"
+                onclick="wbDeleteSite('${_esc(s.name)}')">🗑</button>
+      </td>
+    </tr>`;
+  }).join("");
+}
+
+/** Build a site via the API and show progress. */
+async function wbBuildSite(name) {
+  const outEl = document.getElementById("wb-action-output");
+  outEl.style.display = "block";
+  outEl.textContent   = `Building '${name}'…`;
+  toast(`Building ${name}…`);
+
+  const data = await apiFetch(`/api/v1/sites/${encodeURIComponent(name)}/build`, {
+    method: "POST",
+  });
+
+  if (data.error) {
+    outEl.textContent = `✗ Error: ${data.error}`;
+    toast(`✗ Build failed for ${name}`, 4000);
+  } else {
+    outEl.textContent =
+      `✓ Build complete for '${name}'.\n` +
+      `  Output: ${data.build_dir || "(unknown)"}\n\n` +
+      `  To preview, run from terminal:\n` +
+      `  cd "${data.build_dir || "…/_build"}"\n` +
+      `  python3 -m http.server 8767 --bind 127.0.0.1\n` +
+      `  Open: http://127.0.0.1:8767/index.html`;
+    toast(`✓ ${name} built`);
+    loadSites();
+  }
+}
+
+/** Delete a site after confirmation. */
+async function wbDeleteSite(name) {
+  if (!confirm(`Delete site '${name}' and all its files? This cannot be undone.`)) return;
+  const data = await apiFetch(`/api/v1/sites/${encodeURIComponent(name)}`, {
+    method: "DELETE",
+  });
+  if (data.error) {
+    toast(`✗ Delete failed: ${data.error}`, 4000);
+  } else {
+    toast(`✓ '${name}' deleted`);
+    loadSites();
+  }
+}
+
+/** HTML-escape a string for safe insertion into innerHTML. */
+function _esc(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+// Create-site form submission
+document.getElementById("wb-create-form")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const outEl = document.getElementById("wb-create-output");
+  outEl.style.display = "block";
+  outEl.textContent   = "Creating site…";
+
+  const data = await apiFetch("/api/v1/sites", {
+    method: "POST",
+    body: JSON.stringify({
+      name:        document.getElementById("wb-name").value.trim(),
+      template:    document.getElementById("wb-template").value,
+      title:       document.getElementById("wb-title").value.trim(),
+      description: document.getElementById("wb-desc").value.trim(),
+      mode:        document.getElementById("wb-mode").value,
+    }),
+  });
+
+  if (data.error) {
+    outEl.textContent = `✗ Error: ${data.error}`;
+    toast(`✗ ${data.error}`, 4000);
+  } else {
+    outEl.textContent =
+      `✓ Site '${data.name}' created!\n\n` +
+      `  Template    : ${data.template}\n` +
+      `  Mode        : ${data.mode}\n` +
+      `  Title       : ${data.title}\n\n` +
+      `  Switch to "My Sites" and click Build to generate the static output.`;
+    toast(`✓ '${data.name}' created`);
+    document.getElementById("wb-create-form").reset();
+  }
+});
 
 // ---- Init -------------------------------------------------------------------
 (async function init() {

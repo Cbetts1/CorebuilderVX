@@ -1,7 +1,7 @@
 """
-vm_menu.py — Tools Center VM Tools menu.
+site_builder_menu.py — Tools Center Website Builder & Online Studio menu.
 
-Loads tools from the registry for the 'vm' group,
+Loads tools from the registry for the 'site_builder' group,
 renders a numbered list, and dispatches to tool handlers.
 """
 
@@ -11,12 +11,12 @@ from ui import icons
 
 
 def show():
-    """Display the VM Tools menu."""
-    navigation.push("VM Tools")
+    """Display the Website Builder & Online Studio menu."""
+    navigation.push("Website Builder")
 
     items = _build_items()
     menu_engine.show_menu(
-        title="🖥️  VM Tools",
+        title="🏗️  Website Builder & Online Studio",
         items=items,
         breadcrumb=navigation.breadcrumb(),
         back_fn=_go_back,
@@ -27,14 +27,13 @@ def show():
 
 def _build_items():
     """Return list of (icon, label, handler_fn) from registry for this group."""
-    tools = [t for t in state.registry if t.get("group") == "vm"]
+    tools  = [t for t in state.registry if t.get("group") == "site_builder"]
     result = []
     for tool in tools:
-        icon  = tool.get("icon", icons.get("vm"))
+        icon  = tool.get("icon", icons.get("site_builder"))
         label = tool.get("label", tool["id"])
         fn    = _make_handler(tool)
         result.append((icon, label, fn))
-    # Fallback: hard-coded items if registry is empty
     if not result:
         result = _fallback_items()
     return result
@@ -68,8 +67,10 @@ def _import_and_call(handler_path: str, fn_name: str):
 def _fallback_items():
     """Hard-coded fallback items used when registry is unavailable."""
     return [
-        ("{}", "Start VM", lambda: print("  Running: Start VM")),
-        ("{}", "Stop VM", lambda: print("  Running: Stop VM")),
+        ("🏗️", "Create New Site",  lambda: print("  Running: Create New Site")),
+        ("📋", "List Sites",       lambda: print("  Running: List Sites")),
+        ("⚙️", "Build Site",       lambda: print("  Running: Build Site")),
+        ("👁️", "Preview Site",     lambda: print("  Running: Preview Site")),
     ]
 
 
