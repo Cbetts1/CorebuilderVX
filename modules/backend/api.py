@@ -111,6 +111,34 @@ def list_modules():
     return jsonify({"modules": modules})
 
 
+@app.route("/api/v1/sites", methods=["GET"])
+def list_sites():
+    """Return all website projects from the project index."""
+    index_path = os.path.join(CBX_ROOT, "builds", "websites", "index.json")
+    projects = []
+    if os.path.exists(index_path):
+        with open(index_path, encoding="utf-8") as f:
+            try:
+                projects = json.load(f)
+            except Exception:
+                projects = []
+    return jsonify({"sites": projects, "count": len(projects)})
+
+
+@app.route("/api/v1/sites/templates", methods=["GET"])
+def list_site_templates():
+    """Return all available website templates."""
+    templates_dir = os.path.join(CBX_ROOT, "modules", "site_builder", "templates")
+    templates = []
+    if os.path.isdir(templates_dir):
+        for name in sorted(os.listdir(templates_dir)):
+            tpath = os.path.join(templates_dir, name)
+            if os.path.isdir(tpath):
+                files = os.listdir(tpath)
+                templates.append({"name": name, "files": files})
+    return jsonify({"templates": templates})
+
+
 @app.route("/api/v1/logs", methods=["GET"])
 def get_logs():
     """Return recent build log entries."""
@@ -126,20 +154,58 @@ def get_logs():
 def run_command():
     """Run a safe CBX module command (whitelist-only)."""
     data = request.get_json(force=True, silent=True) or {}
-    allowed = {"hardware", "build", "test", "sim", "vcloud", "vm", "update"}
+    allowed = {"hardware", "build", "test", "sim", "vcloud", "vm", "update",
+               "site_create", "site_open", "site_preview"}
     cmd = data.get("command", "")
     if cmd not in allowed:
         return jsonify({"error": f"Command not allowed: {cmd}"}), 400
 
+    site_builder = os.path.join(CBX_ROOT, "modules", "site_builder", "website_builder.py")
+
     script_map = {
-        "hardware": os.path.join(CBX_ROOT, "modules", "hardware", "detect.sh"),
-        "build":    os.path.join(CBX_ROOT, "modules", "os_builder", "blueprint.sh"),
-        "test":     os.path.join(CBX_ROOT, "modules", "os_tester",  "integrity.sh"),
-        "sim":      os.path.join(CBX_ROOT, "modules", "boot_sim",   "simulate.sh"),
-        "vcloud":   os.path.join(CBX_ROOT, "modules", "vcloud",     "build.sh"),
-        "vm":       os.path.join(CBX_ROOT, "modules", "vm",         "lite_vm.sh"),
-        "update":   os.path.join(CBX_ROOT, "modules", "updater",    "self_upgrade.sh"),
+        "hardware":     os.path.join(CBX_ROOT, "modules", "hardware",   "detect.sh"),
+        "build":        os.path.join(CBX_ROOT, "modules", "os_builder", "blueprint.sh"),
+        "test":         os.path.join(CBX_ROOT, "modules", "os_tester",  "integrity.sh"),
+        "sim":          os.path.join(CBX_ROOT, "modules", "boot_sim",   "simulate.sh"),
+        "vcloud":       os.path.join(CBX_ROOT, "modules", "vcloud",     "build.sh"),
+        "vm":           os.path.join(CBX_ROOT, "modules", "vm",         "lite_vm.sh"),
+        "update":       os.path.join(CBX_ROOT, "modules", "updater",    "self_upgrade.sh"),
     }
+
+    # Site builder commands are Python, not shell scripts
+    if cmd in ("site_create", "site_open", "site_preview"):
+        if not os.path.exists(site_builder):
+            return jsonify({"error": "website_builder.py not found"}), 404
+        sub_cmd = {"site_create": "create", "site_open": "open", "site_preview": "preview"}[cmd]
+        extra_args = []
+        if cmd == "site_create":
+            name     = data.get("name", "")
+            template = data.get("template", "")
+            if name:
+                extra_args.append(name)
+            if template:
+                extra_args.append(template)
+        elif cmd in ("site_open", "site_preview"):
+            name = data.get("name", "")
+            if name:
+                extra_args.append(name)
+        try:
+            result = subprocess.run(
+                [sys.executable, site_builder, sub_cmd] + extra_args,
+                capture_output=True, text=True, timeout=30,
+                env={**os.environ, "CBX_ROOT": CBX_ROOT, "CBX_NO_COLOR": "1"}
+            )
+            return jsonify({
+                "command":    cmd,
+                "returncode": result.returncode,
+                "stdout":     result.stdout[-4096:],
+                "stderr":     result.stderr[-1024:],
+            })
+        except subprocess.TimeoutExpired:
+            return jsonify({"error": "Command timed out"}), 504
+        except Exception:
+            return jsonify({"error": "Internal server error"}), 500
+
     script = script_map.get(cmd)
     if not script or not os.path.exists(script):
         return jsonify({"error": "Script not found"}), 404

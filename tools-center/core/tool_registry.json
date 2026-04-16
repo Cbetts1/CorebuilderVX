@@ -278,5 +278,37 @@
     "icon": ">_",
     "handler": "tools.shell.run_shell_command",
     "supports_simulation": true
+  },
+  {
+    "id": "site_create_project",
+    "group": "site_builder",
+    "label": "Create Project",
+    "icon": "🌐",
+    "handler": "tools.site_builder.create_project",
+    "supports_simulation": true
+  },
+  {
+    "id": "site_open_project",
+    "group": "site_builder",
+    "label": "Open Project",
+    "icon": "🌐",
+    "handler": "tools.site_builder.open_project",
+    "supports_simulation": true
+  },
+  {
+    "id": "site_preview_server",
+    "group": "site_builder",
+    "label": "Preview Server",
+    "icon": "🌐",
+    "handler": "tools.site_builder.preview_server",
+    "supports_simulation": true
+  },
+  {
+    "id": "site_template_loader",
+    "group": "site_builder",
+    "label": "Template Loader",
+    "icon": "🌐",
+    "handler": "tools.site_builder.template_loader",
+    "supports_simulation": false
   }
 ]

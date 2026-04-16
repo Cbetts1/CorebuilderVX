@@ -36,6 +36,7 @@ function showPanel(name) {
   if (name === "logs")     loadLogs();
   if (name === "ai")       checkAiBackend();
   if (name === "dashboard") loadBuilds();
+  if (name === "studio")   loadStudioProjects();
 }
 
 document.querySelectorAll(".cbx-nav li").forEach(li => {
@@ -228,3 +229,108 @@ function saveSettings() {
   // Poll API status every 15s
   setInterval(checkApiStatus, 15000);
 })();
+
+// ---- Online Studio ----------------------------------------------------------
+
+async function loadStudioProjects() {
+  const tbody = document.getElementById("studio-projects-tbody");
+  if (!tbody) return;
+  tbody.innerHTML = `<tr><td colspan="5" class="cbx-loading">Loading...</td></tr>`;
+
+  const data = await apiFetch("/api/v1/sites");
+  if (data.error) {
+    tbody.innerHTML = `<tr><td colspan="5" class="cbx-loading">${data.error}</td></tr>`;
+    return;
+  }
+  const sites = data.sites || [];
+  if (sites.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="cbx-loading">No projects yet — click ＋ New Project</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = sites.map(s => `
+    <tr>
+      <td>${s.name || "–"}</td>
+      <td>${s.template || "–"}</td>
+      <td>${s.created_at ? s.created_at.slice(0, 16) : "–"}</td>
+      <td style="color:${s.status === 'active' ? 'var(--green, #4caf50)' : 'var(--yellow, #ffc107)'}">
+        ${s.status || "–"}
+      </td>
+      <td>
+        <button class="cbx-btn" style="padding:0.2rem 0.6rem;font-size:0.8rem;"
+          onclick="studioPreview('${s.name}')">▶ Preview</button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+function studioCreateProject() {
+  const form = document.getElementById("studio-create-form");
+  form.style.display = form.style.display === "none" ? "block" : "none";
+}
+
+async function studioSubmitCreate() {
+  const name     = document.getElementById("studio-proj-name").value.trim();
+  const template = document.getElementById("studio-proj-template").value;
+  if (!name) { toast("Enter a project name"); return; }
+
+  const outEl = document.getElementById("studio-output");
+  outEl.style.display = "block";
+  outEl.textContent = `Creating project '${name}' from template '${template}'...`;
+
+  const data = await apiFetch("/api/v1/run", {
+    method: "POST",
+    body: JSON.stringify({ command: "site_create", name, template })
+  });
+
+  outEl.textContent = (data.stdout || "") || (data.error || "Done");
+  outEl.scrollTop   = outEl.scrollHeight;
+
+  if (data.returncode === 0 || !data.error) {
+    toast(`✓ Project '${name}' created`);
+    document.getElementById("studio-create-form").style.display = "none";
+    loadStudioProjects();
+  } else {
+    toast(`✗ Create failed`, 4000);
+  }
+}
+
+async function studioPreview(name) {
+  const outEl = document.getElementById("studio-output");
+  outEl.style.display = "block";
+  outEl.textContent = `Starting preview for '${name}'...\nNote: Preview server runs on port 8000.`;
+  toast(`Starting preview for ${name}…`);
+
+  const data = await apiFetch("/api/v1/run", {
+    method: "POST",
+    body: JSON.stringify({ command: "site_preview", name })
+  });
+
+  outEl.textContent = (data.stdout || data.error || "Preview server started on port 8000.");
+  outEl.scrollTop   = outEl.scrollHeight;
+}
+
+async function studioLoadTemplates() {
+  const wrap  = document.getElementById("studio-templates-wrap");
+  const tbody = document.getElementById("studio-templates-tbody");
+  wrap.style.display = wrap.style.display === "none" ? "block" : "none";
+  if (wrap.style.display === "none") return;
+
+  tbody.innerHTML = `<tr><td colspan="3" class="cbx-loading">Loading...</td></tr>`;
+  const data = await apiFetch("/api/v1/sites/templates");
+  if (data.error) {
+    tbody.innerHTML = `<tr><td colspan="3" class="cbx-loading">${data.error}</td></tr>`;
+    return;
+  }
+  const templates = data.templates || [];
+  if (templates.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="3" class="cbx-loading">No templates found</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = templates.map((t, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${t.name}</td>
+      <td>${(t.files || []).join(", ")}</td>
+    </tr>
+  `).join("");
+}
