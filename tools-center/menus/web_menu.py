@@ -68,8 +68,8 @@ def _import_and_call(handler_path: str, fn_name: str):
 def _fallback_items():
     """Hard-coded fallback items used when registry is unavailable."""
     return [
-        ("{}", "Start Web Server", lambda: print("  Running: Start Web Server")),
-        ("{}", "Build Static Site", lambda: print("  Running: Build Static Site")),
+        ("🌐", "Start Web Server", lambda: print("  Running: Start Web Server")),
+        ("🌐", "Build Static Site", lambda: print("  Running: Build Static Site")),
     ]
 
 

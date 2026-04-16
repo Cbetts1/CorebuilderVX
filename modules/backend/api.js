@@ -252,15 +252,16 @@ function _handleDynamic(method, url, req, res, body) {
     if (m && method === "GET") {
         const name     = safeName(m[1]);
         const manifest = readManifest(name);
-        if (!manifest) return json(res, 404, { error: `Site '${name}' not found` });
-        return json(res, 200, manifest);
+        if (!manifest) { json(res, 404, { error: `Site '${name}' not found` }); return true; }
+        json(res, 200, manifest);
+        return true;
     }
     // POST /api/v1/sites/<name>/build
     m = url.match(/^\/api\/v1\/sites\/([^/]+)\/build$/);
     if (m && method === "POST") {
         const name    = safeName(m[1]);
         const pDir    = path.join(sitesDir(), name);
-        if (!fs.existsSync(pDir)) return json(res, 404, { error: `Site '${name}' not found` });
+        if (!fs.existsSync(pDir)) { json(res, 404, { error: `Site '${name}' not found` }); return true; }
         const buildDir  = path.join(pDir, "_build");
         const pagesDir  = path.join(pDir, "pages");
         const assetsDir = path.join(pDir, "assets");
@@ -288,16 +289,18 @@ function _handleDynamic(method, url, req, res, body) {
         manifest.updated_at = now;
         manifest.last_build = now;
         writeManifest(name, manifest);
-        return json(res, 200, { status: "ok", build_dir: buildDir, manifest });
+        json(res, 200, { status: "ok", build_dir: buildDir, manifest });
+        return true;
     }
     // DELETE /api/v1/sites/<name>
     m = url.match(/^\/api\/v1\/sites\/([^/]+)$/);
     if (m && method === "DELETE") {
         const name = safeName(m[1]);
         const pDir = path.join(sitesDir(), name);
-        if (!fs.existsSync(pDir)) return json(res, 404, { error: `Site '${name}' not found` });
+        if (!fs.existsSync(pDir)) { json(res, 404, { error: `Site '${name}' not found` }); return true; }
         fs.rmSync(pDir, { recursive: true });
-        return json(res, 200, { status: "ok", deleted: name });
+        json(res, 200, { status: "ok", deleted: name });
+        return true;
     }
     return false;
 }

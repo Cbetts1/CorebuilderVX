@@ -205,11 +205,11 @@ def create_site():
             name, template=template, title=title, description=desc, mode=mode
         )
         return jsonify(manifest), 201
-    except FileExistsError as exc:
-        return jsonify({"error": str(exc)}), 409
-    except ValueError as exc:
-        return jsonify({"error": str(exc)}), 400
-    except Exception as exc:
+    except FileExistsError:
+        return jsonify({"error": f"A site named '{name}' already exists."}), 409
+    except ValueError:
+        return jsonify({"error": "Invalid request parameters (name, template, or mode)."}), 400
+    except Exception:
         return jsonify({"error": "Internal server error"}), 500
 
 
