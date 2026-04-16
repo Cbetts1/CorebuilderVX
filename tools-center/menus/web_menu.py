@@ -72,8 +72,12 @@ def _import_and_call(handler_path: str, fn_name: str):
 def _fallback_items():
     """Hard-coded fallback items used when registry is unavailable."""
     return [
-        ("{}", "Start Web Server", lambda: print("  Running: Start Web Server")),
-        ("{}", "Build Static Site", lambda: print("  Running: Build Static Site")),
+        ("🌐", "Start Web Server  [placeholder — registry unavailable]",
+         lambda: print("  [Start Web Server] PLACEHOLDER: registry not loaded. "
+                       "Check tools-center/core/tool_registry.json.")),
+        ("🌐", "Build Static Site  [placeholder — registry unavailable]",
+         lambda: print("  [Build Static Site] PLACEHOLDER: registry not loaded. "
+                       "Check tools-center/core/tool_registry.json.")),
     ]
 
 
